@@ -61,12 +61,20 @@ jobs:
         run: |
           test -n "$KEYSTORE_BASE64" || { echo "Λείπει το secret ANDROID_KEYSTORE_BASE64" >&2; exit 1; }
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-          apksigner=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
-          "$apksigner" sign --ks "$RUNNER_TEMP/release.jks" --ks-pass env:KEYSTORE_PASSWORD \
-            --ks-key-alias "$KEY_ALIAS" --key-pass env:KEY_PASSWORD \
-            --out "myDATAview-${{ steps.version.outputs.version }}.apk" \
-            android/app/build/outputs/apk/release/app-release.apk
-          "$apksigner" verify "myDATAview-${{ steps.version.outputs.version }}.apk"
+          tools=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
+          sign() {
+            "$tools/apksigner" sign --ks "$RUNNER_TEMP/release.jks" --ks-pass env:KEYSTORE_PASSWORD \
+              --ks-key-alias "$KEY_ALIAS" --key-pass env:KEY_PASSWORD --out "$2" "$1"
+            "$tools/apksigner" verify "$2"
+          }
+          input=android/app/build/outputs/apk/release/app-release.apk
+          sign "$input" emulator.apk
+          # Το APK που δημοσιεύεται: μόνο 64-bit ARM, χωρίς τα x86_64 του εξομοιωτή.
+          cp "$input" arm64.apk
+          zip -q -d arm64.apk 'lib/x86_64/*'
+          "$tools/zipalign" -f -P 16 4 arm64.apk aligned.apk
+          sign aligned.apk "myDATAview-${{ steps.version.outputs.version }}.apk"
+          ls -la *.apk
           rm -f "$RUNNER_TEMP/release.jks"
 
       - name: Enable KVM
@@ -85,13 +93,14 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           script: |
-            adb install -r myDATAview-*.apk
+            adb install -r emulator.apk
             adb logcat -c
             adb shell monkey -p com.tedlaz.mydataview -c android.intent.category.LAUNCHER 1
             sleep 45
             adb logcat -d > logcat.txt
             adb shell screencap -p /sdcard/screen.png
             adb pull /sdcard/screen.png screen.png
+            adb shell dumpsys package com.tedlaz.mydataview > package.txt
             adb shell pidof com.tedlaz.mydataview > pid.txt || true
             test -s pid.txt
 
@@ -106,6 +115,7 @@ jobs:
           path: |
             logcat.txt
             screen.png
+            package.txt
           retention-days: 7
 
       - uses: actions/upload-artifact@v4
