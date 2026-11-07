@@ -1,0 +1,21 @@
+// Τα θέματα εμφάνισης του myDATA Classifier, με τα ίδια χρώματα.
+export type Colors = {
+  bg: string; card: string; text: string; muted: string; line: string; accent: string;
+  onAccent: string; good: string; bad: string; warn: string;
+  accentSoft: string; accentDeep: string; accentGlow: string; errSoft: string; errLine: string;
+};
+export type Theme = { key: string; name: string; dark: boolean; side: string; colors: Colors };
+
+export const THEMES: Theme[] = [
+  {key: 'light',name: 'Φωτεινό',dark: false,side: '#10142a',colors: {bg: '#f4f6fb',card: '#ffffff',text: '#141a2e',muted: '#6b7591',line: '#e2e6f0',accent: '#4a55e8',onAccent: '#fff',good: '#0e8a5f',bad: '#c6322a',warn: '#9a6300',accentSoft: '#eceefe',accentDeep: '#3540c4',accentGlow: '#c9cdfb',errSoft: '#fdecea',errLine: '#f5c6c1'}},
+  {key: 'paper',name: 'Χαρτί',dark: false,side: '#2b2722',colors: {bg: '#f4f1ea',card: '#fbf9f4',text: '#2b2a26',muted: '#7a7466',line: '#e2dccd',accent: '#2f5d8a',onAccent: '#fff',good: '#3f7a3a',bad: '#a83a2c',warn: '#8a5a00',accentSoft: '#e6edf4',accentDeep: '#24486c',accentGlow: '#c4d3e4',errSoft: '#f6e3dd',errLine: '#e8bfb5'}},
+  {key: 'solar',name: 'Solarized',dark: false,side: '#073642',colors: {bg: '#fdf6e3',card: '#fffcf2',text: '#073642',muted: '#6c7c80',line: '#e4dcc4',accent: '#268bd2',onAccent: '#fff',good: '#5f7000',bad: '#c22a27',warn: '#8a6800',accentSoft: '#e3eef3',accentDeep: '#1a6fa8',accentGlow: '#b8d6ea',errSoft: '#f9e1d9',errLine: '#efbcb2'}},
+  {key: 'neonl',name: 'Neon Light',dark: false,side: '#0a0a14',colors: {bg: '#f7f7fb',card: '#ffffff',text: '#000000',muted: '#4a4a66',line: '#b8b8d0',accent: '#d1007a',onAccent: '#fff',good: '#007a3d',bad: '#d10024',warn: '#8f5a00',accentSoft: '#ffe0f1',accentDeep: '#9e005c',accentGlow: '#ff8fd0',errSoft: '#ffe0e6',errLine: '#ff8fa3'}},
+  {key: 'artl',name: 'ArtCraft Light',dark: false,side: '#101014',colors: {bg: '#f2f1ee',card: '#faf9f7',text: '#101014',muted: '#6b6b70',line: '#d4d3cf',accent: '#1659c4',onAccent: '#fff',good: '#0a7563',bad: '#b3261e',warn: '#8a5800',accentSoft: '#e2ecfb',accentDeep: '#0f4596',accentGlow: '#b9d2fb',errSoft: '#f8e4e2',errLine: '#ebbcb8'}},
+  {key: 'dark',name: 'Σκοτεινό',dark: true,side: '#090c19',colors: {bg: '#0c1020',card: '#141a2f',text: '#e8ebf7',muted: '#8a93b5',line: '#29314f',accent: '#8a93ff',onAccent: '#fff',good: '#4fd1a0',bad: '#ff8a80',warn: '#f2c265',accentSoft: '#232a52',accentDeep: '#aab1ff',accentGlow: '#3b4485',errSoft: '#3a1a1c',errLine: '#6a2b2b'}},
+  {key: 'tokyo',name: 'Tokyo Night',dark: true,side: '#16161e',colors: {bg: '#1a1b26',card: '#24283b',text: '#c0caf5',muted: '#737aa2',line: '#3b4261',accent: '#7aa2f7',onAccent: '#fff',good: '#9ece6a',bad: '#f7768e',warn: '#e0af68',accentSoft: '#2a3454',accentDeep: '#9ab8ff',accentGlow: '#3d59a1',errSoft: '#3a1f29',errLine: '#6b2f3d'}},
+  {key: 'nord',name: 'Nord',dark: true,side: '#272c36',colors: {bg: '#2e3440',card: '#3b4252',text: '#eceff4',muted: '#9aa5ba',line: '#4c566a',accent: '#88c0d0',onAccent: '#fff',good: '#a3be8c',bad: '#e0878f',warn: '#ebcb8b',accentSoft: '#3a4a5c',accentDeep: '#a3d4e0',accentGlow: '#4f6d80',errSoft: '#47333a',errLine: '#6e434b'}},
+  {key: 'neon',name: 'Neon',dark: true,side: '#050409',colors: {bg: '#07060d',card: '#100e1c',text: '#f5f3ff',muted: '#a59bd6',line: '#3a2f66',accent: '#00f0ff',onAccent: '#fff',good: '#39ff88',bad: '#ff3864',warn: '#ffe600',accentSoft: '#0a2a33',accentDeep: '#7df9ff',accentGlow: '#00737a',errSoft: '#330b16',errLine: '#7a1a33'}},
+  {key: 'art',name: 'ArtCraft',dark: true,side: '#060607',colors: {bg: '#121316',card: '#18191d',text: '#f2f1ee',muted: '#9a9995',line: '#2f3033',accent: '#74aaff',onAccent: '#fff',good: '#3fd6b8',bad: '#ff6259',warn: '#ffc14d',accentSoft: '#16233a',accentDeep: '#9cc2ff',accentGlow: '#1f4a8c',errSoft: '#341716',errLine: '#6a2b28'}},
+  {key: 'ted',name: 'ted',dark: true,side: '#000000',colors: {bg: '#070604',card: '#0a0e0a',text: '#c8f5c8',muted: '#6f8a6f',line: '#123a12',accent: '#00dd00',onAccent: '#041004',good: '#00dd00',bad: '#ff5555',warn: '#f1db0a',accentSoft: '#0b250b',accentDeep: '#5cff5c',accentGlow: '#00a000',errSoft: '#331010',errLine: '#7a2020'}},
+];
