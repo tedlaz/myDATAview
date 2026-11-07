@@ -25,7 +25,14 @@
       "expo-router",
       "expo-sqlite",
       "expo-secure-store",
-      "expo-background-task"
+      "expo-background-task",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Η κάμερα χρησιμοποιείται μόνο για τη σάρωση του QR της εταιρείας.",
+          "recordAudioAndroid": false
+        }
+      ]
     ],
     "scheme": "mydataview"
   }

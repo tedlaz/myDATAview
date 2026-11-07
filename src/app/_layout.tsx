@@ -13,6 +13,7 @@ function Screens() {
       <Stack screenOptions={{ headerStyle: { backgroundColor: c.card }, headerTintColor: c.text, contentStyle: { backgroundColor: c.bg } }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="company" options={{ title: 'Εταιρεία' }} />
+        <Stack.Screen name="scan" options={{ title: 'Σάρωση QR' }} />
         <Stack.Screen name="doc/[mark]" options={{ title: 'Παραστατικό' }} />
         <Stack.Screen name="counterparty/[vat]" options={{ title: 'Συναλλασσόμενος' }} />
       </Stack>

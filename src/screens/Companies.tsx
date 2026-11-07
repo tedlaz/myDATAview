@@ -34,7 +34,10 @@ export default function Companies() {
         </Card>
       ))}
       {!companies.length && <Text style={[styles.none, { color: c.muted }]}>Καμία εταιρεία ακόμα.</Text>}
-      <Button title="Νέα εταιρεία" onPress={() => router.push('/company')} />
+      <Button title="Σάρωση QR από το myDATA" onPress={() => router.push('/scan')} />
+      <View style={styles.manual}>
+        <Button kind="ghost" title="Νέα εταιρεία χειροκίνητα" onPress={() => router.push('/company')} />
+      </View>
     </ScrollView>
   );
 }
@@ -44,4 +47,5 @@ const styles = StyleSheet.create({
   name: { fontWeight: '600' },
   edit: { marginTop: 10, alignSelf: 'flex-start' },
   none: { textAlign: 'center', padding: 24 },
+  manual: { marginTop: 8 },
 });
