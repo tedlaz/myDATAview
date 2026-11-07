@@ -2,7 +2,7 @@
   "expo": {
     "name": "myDATAview",
     "slug": "myDATAview",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -31,6 +31,14 @@
         {
           "cameraPermission": "Η κάμερα χρησιμοποιείται μόνο για τη σάρωση του QR της εταιρείας.",
           "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": false
+          }
         }
       ]
     ],
