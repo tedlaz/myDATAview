@@ -6,7 +6,7 @@ import { todayGr } from '../aade/client.ts';
 import { elAmount, monthRows, round2, sumTotals, tableRows, yearlyTotals, type MonthRow } from '../book/yearly.ts';
 import { getStore } from '../db.ts';
 import type { Company } from '../store.ts';
-import { Button, Card, Chips, Row, useColors } from '../ui/theme.tsx';
+import { Button, Card, Chips, Row, useColors, Title } from '../ui/theme.tsx';
 import { YearTableBody, YearTableHead } from '../ui/YearTable.tsx';
 
 type Props = {
@@ -58,7 +58,7 @@ export default function Yearly({ year, setYear, withUnclassified, setWithUnclass
           <Switch value={withUnclassified} onValueChange={setWithUnclassified} accessibilityLabel="Με αχαρακτήριστα" />
         </View>
         <Card>
-          <Text style={[styles.title, { color: c.text }]}>Σύνολο {year}</Text>
+          <Title style={styles.title}>Σύνολο {year}</Title>
           <Row label="Έσοδα" value={`${elAmount(income.net)} €`} />
           <Row label="Έξοδα" value={`${elAmount(expense.net)} €`} />
           <Row label="Υπόλοιπο εσ. − εξ." value={`${elAmount(balance)} €`} strong color={balance < 0 ? c.bad : c.good} />

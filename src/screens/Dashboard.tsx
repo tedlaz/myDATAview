@@ -9,7 +9,7 @@ import { getStore } from '../db.ts';
 import { shortName } from '../names.ts';
 import type { Company } from '../store.ts';
 import { ColumnChart, Legend, Meter, useSeries, type Slot } from '../ui/charts.tsx';
-import { Button, Card, Chips, Row, useColors } from '../ui/theme.tsx';
+import { Button, Card, Chips, Row, useColors, Title } from '../ui/theme.tsx';
 import { VatCard } from '../ui/VatCard.tsx';
 
 type Data = ReturnType<typeof dashboard>;
@@ -30,7 +30,7 @@ function Top({ title, list, color, empty }: { title: string; list: Counterparty[
   const max = Math.max(1, ...list.map((t) => t.amount));
   return (
     <Card>
-      <Text style={[styles.title, { color: c.text }]}>{title}</Text>
+      <Title style={styles.title}>{title}</Title>
       {!list.length && <Text style={{ color: c.muted }}>{empty}</Text>}
       {list.map((t) => (
         <View key={t.vat ?? t.name} style={styles.top}>
@@ -137,7 +137,7 @@ export default function Dashboard({ year, setYear, withUnclassified, setWithUncl
       </View>
 
       <Card>
-        <Text style={[styles.title, { color: c.text }]}>Έσοδα / έξοδα ανά μήνα</Text>
+        <Title style={styles.title}>Έσοδα / έξοδα ανά μήνα</Title>
         <Legend items={[['Έσοδα', series.income], ['Έξοδα', series.expense], ...(hasAssets ? [['Πάγια', series.assets] as [string, string]] : [])]} />
         <ColumnChart slots={monthSlots} />
       </Card>
@@ -145,7 +145,7 @@ export default function Dashboard({ year, setYear, withUnclassified, setWithUncl
       <VatCard tiles={vat} period={company.vat_period} />
 
       <Card>
-        <Text style={[styles.title, { color: c.text }]}>Καθαρό κέρδος {year}</Text>
+        <Title style={styles.title}>Καθαρό κέρδος {year}</Title>
         <Row label="Έσοδα" value={elAmount(pl.inc_total)} />
         {hasCogs && (
           <>
@@ -164,7 +164,7 @@ export default function Dashboard({ year, setYear, withUnclassified, setWithUncl
       </Card>
 
       <Card>
-        <Text style={[styles.title, { color: c.text }]}>Πρόοδος χαρακτηρισμών {year}</Text>
+        <Title style={styles.title}>Πρόοδος χαρακτηρισμών {year}</Title>
         <Row label="Έξοδα" value={`${progress.expenseDone} από ${progress.expenseTotal} (${expensePct}%)`} />
         <Meter value={progress.expenseDone} max={progress.expenseTotal} color={series.expense} />
         <Row label="Έσοδα" value={`${progress.incomeDone} από ${progress.incomeTotal} (${incomePct}%)`} />
@@ -173,7 +173,7 @@ export default function Dashboard({ year, setYear, withUnclassified, setWithUncl
 
       {(assets.total > 0 || assets.previousTotal > 0 || assets.booked > 0) && (
         <Card>
-          <Text style={[styles.title, { color: c.text }]}>Πάγια {year}</Text>
+          <Title style={styles.title}>Πάγια {year}</Title>
           <Legend items={[[String(Number(year) - 1), series.income], [year, series.assets]]} />
           <ColumnChart slots={assetSlots} />
           <Row label={`Αγορές ${year} / ${Number(year) - 1}`} value={`${elAmount(assets.total)} / ${elAmount(assets.previousTotal)}`} />

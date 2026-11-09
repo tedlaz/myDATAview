@@ -1,7 +1,7 @@
 // Παράμετροι εφαρμογής. Θέματα: τα ίδια με το myDATA, και «Αυτόματο» που ακολουθεί το κινητό.
 import Constants from 'expo-constants';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { AUTO, Card, Row, useColors, useTheme } from '../ui/theme.tsx';
+import { AUTO, Card, Row, Title, useColors, useTheme } from '../ui/theme.tsx';
 import { THEMES } from '../ui/themes.ts';
 
 export default function Parameters() {
@@ -22,7 +22,7 @@ export default function Parameters() {
 
   return (
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={styles.screen}>
-      <Text style={[styles.heading, { color: c.text }]}>Θέμα εμφάνισης</Text>
+      <Title style={styles.heading}>Θέμα εμφάνισης</Title>
       {option(AUTO, 'Αυτόματο (όπως το κινητό)', (
         <View style={[styles.swatch, { borderColor: c.line, backgroundColor: c.bg }]} />
       ))}
@@ -32,7 +32,7 @@ export default function Parameters() {
       {THEMES.filter((t) => t.dark).map((t) => option(t.key, t.name, <Swatch key={t.key} bg={t.colors.bg} side={t.side} accent={t.colors.accent} />))}
       <View style={styles.about}>
         <Card>
-          <Text style={[styles.heading, { color: c.text }]}>Σχετικά</Text>
+          <Title style={styles.heading}>Σχετικά</Title>
           <Row label="Έκδοση" value={Constants.expoConfig?.version ?? '—'} />
           <Text style={{ color: c.muted, marginTop: 6 }}>Μόνο διαβάζει από το myDATA. Δεν στέλνει τίποτα στην ΑΑΔΕ. Τα δεδομένα μένουν στο κινητό.</Text>
         </Card>

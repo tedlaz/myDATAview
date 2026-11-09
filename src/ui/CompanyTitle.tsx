@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useSyncExternalStore } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { getStore } from '../db.ts';
-import { useColors } from './theme.tsx';
+import { MONO, useTheme } from './theme.tsx';
 
 function companyName(): string {
   const company = getStore().activeCompany();
@@ -12,12 +12,12 @@ function companyName(): string {
 }
 
 export function CompanyTitle() {
-  const c = useColors();
+  const { colors: c, mono } = useTheme().theme;
   const name = useSyncExternalStore(getStore().subscribe, companyName);
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Εταιρεία ${name}. Αλλαγή εταιρείας`}
       onPress={() => router.navigate('/settings')} style={styles.title}>
-      <Text numberOfLines={1} style={[styles.text, { color: c.text }]}>{name}</Text>
+      <Text numberOfLines={1} style={[styles.text, { color: c.text }, mono && { fontFamily: MONO }]}>{name}</Text>
     </Pressable>
   );
 }

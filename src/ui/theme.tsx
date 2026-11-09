@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View, useColorScheme, type StyleProp, type TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getStore } from '../db.ts';
 import { THEMES, type Colors, type Theme } from './themes.ts';
@@ -34,6 +34,18 @@ export function useTheme(): ThemeState {
 
 export const useColors = (): Colors => useTheme().theme.colors;
 
+/** Το σχήμα του θέματος: τετράγωνες γωνίες και σκληρή σκιά (HackerNoon), αλλιώς τίποτα. */
+function useShape(shadow = false) {
+  const { square, shadow: box } = useTheme().theme;
+  return [square && { borderRadius: 0 }, shadow && box ? { boxShadow: box } : null];
+}
+
+/** Τίτλος κάρτας/ενότητας· σε monospace όταν το θέλει το θέμα. */
+export function Title({ style, children }: { style?: StyleProp<TextStyle>; children: ReactNode }) {
+  const { colors, mono } = useTheme().theme;
+  return <Text style={[style, { color: colors.text }, mono && { fontFamily: MONO }]}>{children}</Text>;
+}
+
 /** Κενό στο τέλος οθόνης χωρίς κάτω καρτέλες: το περιεχόμενο να μην κρύβεται κάτω από τα κουμπιά του κινητού. */
 export function useBottomSpace() {
   return { paddingBottom: useSafeAreaInsets().bottom + 12 };
@@ -41,7 +53,8 @@ export function useBottomSpace() {
 
 export function Card({ children }: { children: ReactNode }) {
   const c = useColors();
-  return <View style={[styles.card, { backgroundColor: c.card, borderColor: c.line }]}>{children}</View>;
+  const shape = useShape(true);
+  return <View style={[styles.card, { backgroundColor: c.card, borderColor: c.line }, shape]}>{children}</View>;
 }
 
 export function Button({ title, onPress, disabled, kind = 'primary' }: {
@@ -50,9 +63,10 @@ export function Button({ title, onPress, disabled, kind = 'primary' }: {
   const c = useColors();
   const solid = kind === 'primary';
   const color = kind === 'danger' ? c.bad : c.accent;
+  const shape = useShape(solid);
   return (
     <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} disabled={disabled} onPress={onPress}
-      style={[styles.button, { backgroundColor: solid ? color : 'transparent', borderColor: color, opacity: disabled ? 0.5 : 1 }]}>
+      style={[styles.button, { backgroundColor: solid ? color : 'transparent', borderColor: color, opacity: disabled ? 0.5 : 1 }, shape]}>
       <Text style={{ color: solid ? c.onAccent : color, fontWeight: '600' }}>{title}</Text>
     </Pressable>
   );
@@ -62,13 +76,14 @@ export function Chips<T extends string>({ value, options, onChange }: {
   value: T; options: [T, string][]; onChange: (v: T) => void;
 }) {
   const c = useColors();
+  const shape = useShape();
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips} style={styles.chipBar}>
       {options.map(([key, label]) => {
         const on = key === value;
         return (
           <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => onChange(key)}
-            style={[styles.chip, { backgroundColor: on ? c.accent : c.card, borderColor: on ? c.accent : c.line }]}>
+            style={[styles.chip, { backgroundColor: on ? c.accent : c.card, borderColor: on ? c.accent : c.line }, shape]}>
             <Text style={{ color: on ? c.onAccent : c.text }}>{label}</Text>
           </Pressable>
         );
@@ -82,13 +97,14 @@ export function Segments<T extends string>({ value, options, onChange }: {
   value: T; options: [T, string][]; onChange: (v: T) => void;
 }) {
   const c = useColors();
+  const shape = useShape();
   return (
-    <View accessibilityRole="tablist" style={[styles.segments, { backgroundColor: c.accentSoft }]}>
+    <View accessibilityRole="tablist" style={[styles.segments, { backgroundColor: c.accentSoft }, shape]}>
       {options.map(([key, label]) => {
         const on = key === value;
         return (
           <Pressable key={key} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => onChange(key)}
-            style={[styles.segment, on && { backgroundColor: c.card, borderColor: c.accentGlow }]}>
+            style={[styles.segment, on && { backgroundColor: c.card, borderColor: c.accentGlow }, shape]}>
             <Text numberOfLines={1} style={{ color: on ? c.accentDeep : c.muted, fontWeight: on ? '700' : '500', fontSize: 14 }}>{label}</Text>
           </Pressable>
         );

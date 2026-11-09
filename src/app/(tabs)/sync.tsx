@@ -12,13 +12,14 @@ import { loadKeys } from '../../secrets.ts';
 import type { Company } from '../../store.ts';
 import { AutoCountdown } from '../../ui/AutoCountdown.tsx';
 import { DateField } from '../../ui/DateField.tsx';
-import { Button, Card, Segments, useColors } from '../../ui/theme.tsx';
+import { Button, Card, MONO, Segments, useColors, useTheme } from '../../ui/theme.tsx';
 import { lookupName } from '../../vies.ts';
 
 type View_ = 'mark' | 'setup';
 
 export default function Sync() {
   const c = useColors();
+  const { mono } = useTheme().theme;
   const year = todayGr().slice(6);
   const [view, setView] = useState<View_>('mark');
   const [company, setCompany] = useState<Company | null>(null);
@@ -131,7 +132,7 @@ export default function Sync() {
   }
 
   const input = [styles.input, { color: c.text, backgroundColor: c.card, borderColor: c.line }];
-  const title = [styles.title, { color: c.text }];
+  const title = [styles.title, { color: c.text }, mono && { fontFamily: MONO }];
   const date = (label: string, value: string, set: (v: string) => void) => (
     <DateField label={label} value={value} onChange={set} disabled={running} />
   );

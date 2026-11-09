@@ -6,7 +6,7 @@ import { elAmount, elDate } from '../../book/yearly.ts';
 import { EXPENSE_CATEGORIES, EXPENSE_TYPES, INCOME_CATEGORIES, INCOME_TYPES, INVOICE_TYPE_NAMES, TAX_TYPES,
   VAT_CATEGORY_LABELS, VAT_TYPES } from '../../codes.ts';
 import { getStore } from '../../db.ts';
-import { Button, Card, Row, useBottomSpace, useColors } from '../../ui/theme.tsx';
+import { Button, Card, Row, useBottomSpace, useColors, Title } from '../../ui/theme.tsx';
 
 const TYPE_LABELS = { ...EXPENSE_TYPES, ...INCOME_TYPES, ...VAT_TYPES };
 const CATEGORY_LABELS = { ...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES };
@@ -45,7 +45,7 @@ export default function DocumentScreen() {
   return (
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={[styles.screen, bottom]}>
       <Card>
-        <Text style={[styles.title, { color: c.text }]}>{doc.name || doc.vat || 'Λιανική'}</Text>
+        <Title style={styles.title}>{doc.name || doc.vat || 'Λιανική'}</Title>
         {!!doc.vat && <Text style={{ color: c.muted }}>ΑΦΜ {doc.vat}</Text>}
         <Text style={{ color: c.muted, marginTop: 6 }}>{INVOICE_TYPE_NAMES[doc.invoice_type ?? ''] ?? doc.invoice_type}</Text>
         <Row label="Ημερομηνία" value={elDate(doc.issue_date)} />
@@ -56,7 +56,7 @@ export default function DocumentScreen() {
       </Card>
       {url && <View style={styles.open}><Button kind="ghost" title="Άνοιγμα παραστατικού" onPress={() => Linking.openURL(url)} /></View>}
       <Card>
-        <Text style={[styles.title, { color: c.text }]}>Σύνολα</Text>
+        <Title style={styles.title}>Σύνολα</Title>
         <Row label="Καθαρή αξία" value={`${elAmount(doc.total_net)} €`} />
         <Row label="ΦΠΑ" value={`${elAmount(doc.total_vat)} €`} />
         {extras.filter(([, v]) => v).map(([label, v]) => <Row key={label} label={label} value={`${elAmount(v)} €`} />)}
@@ -64,7 +64,7 @@ export default function DocumentScreen() {
       </Card>
       {lines.length > 0 && (
         <Card>
-          <Text style={[styles.title, { color: c.text }]}>Γραμμές</Text>
+          <Title style={styles.title}>Γραμμές</Title>
           {lines.map((ln, i) => (
             <View key={`${ln.line_number}-${i}`} style={styles.line}>
               <Text style={{ color: c.text, fontWeight: '600' }}>Γραμμή {ln.line_number}</Text>
@@ -77,13 +77,13 @@ export default function DocumentScreen() {
       )}
       {taxes.length > 0 && (
         <Card>
-          <Text style={[styles.title, { color: c.text }]}>Φόροι παραστατικού</Text>
+          <Title style={styles.title}>Φόροι παραστατικού</Title>
           {taxes.map((t, n) => <Row key={n} label={TAX_TYPES[t.type] ?? t.type} value={`${elAmount(t.amount)} €`} />)}
         </Card>
       )}
       {cls.length > 0 && (
         <Card>
-          <Text style={[styles.title, { color: c.text }]}>Χαρακτηρισμοί</Text>
+          <Title style={styles.title}>Χαρακτηρισμοί</Title>
           {cls.map((e, n) => <ClsRow key={n} cls={e} />)}
         </Card>
       )}

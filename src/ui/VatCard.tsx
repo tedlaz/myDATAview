@@ -4,7 +4,7 @@ import type { VatTile } from '../book/dashboard.ts';
 import { elAmount } from '../book/yearly.ts';
 import type { VatPeriod } from '../store.ts';
 import { Legend, Meter, useSeries } from './charts.tsx';
-import { Card, useColors } from './theme.tsx';
+import { Card, useColors, Title } from './theme.tsx';
 
 export function VatCard({ tiles, period }: { tiles: VatTile[]; period: VatPeriod }) {
   const c = useColors();
@@ -12,7 +12,7 @@ export function VatCard({ tiles, period }: { tiles: VatTile[]; period: VatPeriod
   const max = Math.max(1, ...tiles.flatMap((t) => [t.output, t.input]));
   return (
     <Card>
-      <Text style={[styles.title, { color: c.text }]}>ΦΠΑ ανά {period === 'q' ? 'τρίμηνο' : 'μήνα'}</Text>
+      <Title style={styles.title}>ΦΠΑ ανά {period === 'q' ? 'τρίμηνο' : 'μήνα'}</Title>
       <Legend items={[['Εκροών', series.income], ['Εισροών', series.expense]]} />
       <View style={styles.grid}>
         {tiles.map((t) => (
