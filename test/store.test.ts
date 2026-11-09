@@ -289,3 +289,48 @@ test('έλεγχος ημερομηνίας', () => {
   assert.ok(validGr('29/02/2024'));
   for (const bad of ['29/02/2026', '31/04/2026', '2026-01-01', '1/1/2026', '']) assert.ok(!validGr(bad), bad);
 });
+
+test('παραστατικό μηδενικής αξίας μετρά ως χαρακτηρισμένο (2.5 / E3_585_016), και τα έσοδα', async () => {
+  const s = setup();
+  const zero: Fetch = async (url, init) => {
+    const r = await fetchFn(url, init);
+    const body = await r.text();
+    return {
+      status: 200,
+      text: async () => body?.replace(/<(totalNetValue|totalVatAmount)>[^<]*</g, '<$1>0<'),
+    };
+  };
+  await run(s, [], { fetchFn: zero });
+  const left = s.store.documents(s.id, 'expense', { status: 'unclassified' }, 100, 0);
+  assert.ok(left.every((d) => d.invoice_type === '1.5'), JSON.stringify(left.map((d) => d.invoice_type)));
+  const mark = golden.expenses.unclassified.find((i: any) => i.invoice_type !== '1.5').mark;
+  const doc = s.store.document(s.id, mark)!;
+  assert.equal(doc.status, 'classified');
+  assert.ok(JSON.parse(doc.cls_json ?? '[]').every((c: any) => c.type === 'E3_585_016' && c.category === 'category2_5'));
+  const income = s.store.documents(s.id, 'income', { status: 'unclassified' }, 100, 0);
+  assert.ok(income.every((d) => d.invoice_type === '1.5'), JSON.stringify(income.map((d) => d.invoice_type)));
+  assert.ok(golden.income.unclassified.some((i: any) => i.invoice_type !== '1.5'), 'το τεστ χρειάζεται αχαρακτήριστο έσοδο');
+  // Παλιά βάση: διορθώνεται στο άνοιγμα.
+  const db = memoryDb();
+  const old = new Store(db);
+  const id = old.addCompany({ name: 'Παλιά', vat: golden.own_vat, env: 'prod', via_accountant: 0 });
+  const base = { ...golden.expenses.unclassified[0], cls_info: [], taxes: [], lines: [] };
+  old.saveBook(id, 'expense', [
+    [{ ...base, mark: '1', invoice_type: '1.1', total_net: 0, total_vat: 0 }, 'unclassified'],
+    [{ ...base, mark: '2', invoice_type: '1.5', total_net: 0, total_vat: 0 }, 'unclassified'],
+    [{ ...base, mark: '3', invoice_type: '1.1', total_net: 0, total_vat: 5 }, 'unclassified'],
+  ], new Set());
+  const again = new Store(db);
+  assert.deepEqual(['1', '2', '3'].map((m) => again.document(id, m)?.status), ['classified', 'unclassified', 'unclassified']);
+});
+
+test('ίδιο UID με άλλο MARK: μένει μόνο το νεότερο MARK', () => {
+  const s = setup();
+  const base = { ...golden.expenses.unclassified[0], cls_info: [], taxes: [], lines: [], uid: 'U1' };
+  s.store.saveBook(s.id, 'expense', [[{ ...base, mark: '200' }, 'unclassified']], new Set());
+  s.store.saveBook(s.id, 'expense', [[{ ...base, mark: '100' }, 'unclassified']], new Set());
+  assert.equal(s.store.document(s.id, '100'), null);
+  s.store.saveBook(s.id, 'expense', [[{ ...base, mark: '300' }, 'unclassified']], new Set());
+  assert.equal(s.store.document(s.id, '200'), null);
+  assert.ok(s.store.document(s.id, '300'));
+});

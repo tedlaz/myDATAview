@@ -27,6 +27,7 @@ export type Extras = {
 };
 export type Invoice = {
   mark: string;
+  uid: string | null;
   issuer_vat: string | null;
   issuer_name: string | null;
   counterpart_vat: string | null;
@@ -158,6 +159,7 @@ export function parseInvoices(root: El): Invoice[] {
 
     result.push({
       mark: text(inv, 'mark') || '',
+      uid: text(inv, 'uid'),
       issuer_vat: text(issuer, 'vatNumber'),
       issuer_name: text(issuer, 'name'),
       counterpart_vat: text(counterpart, 'vatNumber'),

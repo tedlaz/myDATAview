@@ -27,6 +27,16 @@ export type Fetch = (url: string, init: { method: 'GET'; headers: Record<string,
 const isOffBooks = (i: Invoice) => OFF_BOOK_TYPES.has(i.invoice_type ?? '');
 const isSelfExpense = (i: Invoice) => SELF_EXPENSE_TYPES.has(i.invoice_type ?? '');
 const hasEmbedded = (i: Invoice) => i.has_summary_classification || i.lines.some((l) => l.has_expenses_classification);
+/**
+ * Παραστατικό με μηδενική αξία και ΦΠΑ (όχι 1.5): μετρά χαρακτηρισμένο. Τα έξοδα παίρνουν 2.5 / E3_585_016 ανά
+ * γραμμή, όπως το _classify_zero_docs του myDATA Classifier· τα έσοδα (μόνο εδώ, όχι στο Classifier) κανέναν.
+ */
+export function zeroValueCls(i: Pick<Invoice, 'invoice_type' | 'total_net' | 'total_vat' | 'lines'>, kind: 'income' | 'expense'): Cls[] | null {
+  if (i.invoice_type === '1.5' || Math.abs(i.total_net ?? 0) >= 0.005 || Math.abs(i.total_vat ?? 0) >= 0.005) return null;
+  if (kind === 'income') return [];
+  const lines = i.lines.length ? i.lines : [{ line_number: 1, net_value: 0 }];
+  return lines.map((l) => ({ line: l.line_number, type: 'E3_585_016', category: 'category2_5', amount: round2(l.net_value) }));
+}
 
 function unique(invoices: Invoice[]): Invoice[] {
   const seen = new Set<string>();
@@ -317,7 +327,11 @@ export class MyDataClient {
         i.cls_info = i.lines.flatMap((l) => l.classifications);
         i.classification_mark = i.mark;
         classified.push(i);
-      } else unclassified.push(i);
+      } else {
+        const zero = zeroValueCls(i, 'expense');
+        if (zero) i.cls_info = zero;
+        (zero ? classified : unclassified).push(i);
+      }
     }
     return { unclassified, classified, cancelled };
   }
@@ -354,7 +368,7 @@ export class MyDataClient {
         i.cls_info = i.income_classifications;
         i.classification_mark = i.mark;
         classified.push(i);
-      } else unclassified.push(i);
+      } else (zeroValueCls(i, 'income') ? classified : unclassified).push(i);
     }
     return { unclassified, classified, cancelled };
   }

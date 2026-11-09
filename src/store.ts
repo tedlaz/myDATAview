@@ -1,5 +1,6 @@
 // Τοπική βάση. Τα κλειδιά ΑΑΔΕ ΔΕΝ μπαίνουν εδώ: ζουν στο secure store (secrets.ts).
 import type { Invoice } from './aade/parse.ts';
+import { zeroValueCls } from './aade/client.ts';
 import type { YearlyDoc } from './book/yearly.ts';
 
 /** Ό,τι χρειαζόμαστε από το sqlite, ώστε η ίδια λογική να τρέχει στο κινητό και στα tests. */
@@ -80,6 +81,16 @@ export class Store {
     add('companies', 'vat_period', "TEXT NOT NULL DEFAULT 'm'");
     add('names', 'manual', 'INTEGER NOT NULL DEFAULT 0');
     add('names', 'original', 'TEXT');
+    add('documents', 'uid', 'TEXT');
+    // Παλιές λήψεις: παραστατικά μηδενικής αξίας μετρούν ως χαρακτηρισμένα (ίδιος κανόνας με τη λήψη).
+    type Row = { company_id: number; mark: string; kind: Kind; invoice_type: string | null; total_net: number | null; total_vat: number | null; lines_json: string };
+    for (const r of db.all<Row>("SELECT company_id, mark, kind, invoice_type, total_net, total_vat, lines_json FROM documents WHERE status = 'unclassified'")) {
+      const cls = zeroValueCls({ ...r, lines: JSON.parse(r.lines_json) }, r.kind);
+      if (cls) {
+        db.run("UPDATE documents SET status = 'classified', cls_json = ? WHERE company_id = ? AND mark = ?",
+          [JSON.stringify(cls), r.company_id, r.mark]);
+      }
+    }
   }
 
   // ---------- εταιρείες ----------
@@ -212,16 +223,23 @@ export class Store {
           removeFrom ? [companyId, mark, removeFrom] : [companyId, mark]);
       }
       for (const [inv, status] of docs) {
+        // Ίδιο UID με άλλο MARK (ξαναδιαβίβαση): μετρά μόνο το νεότερο MARK.
+        if (inv.uid) {
+          const others = this.db.all<{ mark: string }>('SELECT mark FROM documents WHERE company_id = ? AND uid = ? AND mark <> ?',
+            [companyId, inv.uid, inv.mark]);
+          if (others.some((o) => Number(o.mark) > Number(inv.mark))) continue;
+          for (const o of others) this.db.run('DELETE FROM documents WHERE company_id = ? AND mark = ?', [companyId, o.mark]);
+        }
         const e = inv.extra_totals;
         this.db.run(
           `INSERT OR REPLACE INTO documents (company_id, mark, kind, status, issue_date, vat, invoice_type, series, aa,
              total_net, total_vat, total_gross, total_withheld, total_other_taxes, total_stamp_duty, total_fees,
-             total_deductions, lines_json, cls_json, taxes_json, classification_mark, url)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             total_deductions, lines_json, cls_json, taxes_json, classification_mark, url, uid)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [companyId, inv.mark, kind, status, inv.issue_date, kind === 'income' ? inv.counterpart_vat : inv.issuer_vat,
             inv.invoice_type, inv.series, inv.aa, inv.total_net, inv.total_vat, inv.total_gross, e.total_withheld,
             e.total_other_taxes, e.total_stamp_duty, e.total_fees, e.total_deductions, JSON.stringify(inv.lines),
-            JSON.stringify(inv.cls_info), JSON.stringify(inv.taxes), inv.classification_mark, inv.url],
+            JSON.stringify(inv.cls_info), JSON.stringify(inv.taxes), inv.classification_mark, inv.url, inv.uid ?? null],
         );
       }
     });
